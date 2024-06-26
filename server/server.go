@@ -30,6 +30,7 @@ import (
 	"github.com/dexidp/dex/connector/atlassiancrowd"
 	"github.com/dexidp/dex/connector/authproxy"
 	"github.com/dexidp/dex/connector/bitbucketcloud"
+	"github.com/dexidp/dex/connector/discord"
 	"github.com/dexidp/dex/connector/gitea"
 	"github.com/dexidp/dex/connector/github"
 	"github.com/dexidp/dex/connector/gitlab"
@@ -578,6 +579,7 @@ var ConnectorsConfig = map[string]func() ConnectorConfig{
 	"keystone":        func() ConnectorConfig { return new(keystone.Config) },
 	"mockCallback":    func() ConnectorConfig { return new(mock.CallbackConfig) },
 	"mockPassword":    func() ConnectorConfig { return new(mock.PasswordConfig) },
+	"discord":           func() ConnectorConfig { return new(discord.Config) },
 	"ldap":            func() ConnectorConfig { return new(ldap.Config) },
 	"gitea":           func() ConnectorConfig { return new(gitea.Config) },
 	"github":          func() ConnectorConfig { return new(github.Config) },
