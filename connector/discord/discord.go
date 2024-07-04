@@ -76,7 +76,6 @@ var (
 	_ connector.RefreshConnector  = (*discordConnector)(nil)
 )
 
-// https://discord.com/oauth2/authorize?client_id=1255530851957997721&redirect_uri=http%3A%2F%2Flocalhost%3A5556%2Fdex%2Fcallback&response_type=code&scope=email+identify&state=nsjoy56jwquauv6yrvzgwtm7x
 type discordConnector struct {
 	baseURL      string
 	redirectURI  string
