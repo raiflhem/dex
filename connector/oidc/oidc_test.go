@@ -64,6 +64,7 @@ func TestHandleCallback(t *testing.T) {
 		expectPreferredUsername   string
 		expectedEmailField        string
 		token                     map[string]interface{}
+		groupsRegex               string
 		newGroupFromClaims        []NewGroupFromClaims
 	}{
 		{
@@ -292,6 +293,38 @@ func TestHandleCallback(t *testing.T) {
 			},
 		},
 		{
+			name:               "singularGroupResponseAsMap",
+			userIDKey:          "", // not configured
+			userNameKey:        "", // not configured
+			expectUserID:       "subvalue",
+			expectUserName:     "namevalue",
+			expectGroups:       []string{"group1"},
+			expectedEmailField: "emailvalue",
+			token: map[string]interface{}{
+				"sub":            "subvalue",
+				"name":           "namevalue",
+				"groups":         []map[string]string{{"name": "group1"}},
+				"email":          "emailvalue",
+				"email_verified": true,
+			},
+		},
+		{
+			name:               "multipleGroupResponseAsMap",
+			userIDKey:          "", // not configured
+			userNameKey:        "", // not configured
+			expectUserID:       "subvalue",
+			expectUserName:     "namevalue",
+			expectGroups:       []string{"group1", "group2"},
+			expectedEmailField: "emailvalue",
+			token: map[string]interface{}{
+				"sub":            "subvalue",
+				"name":           "namevalue",
+				"groups":         []map[string]string{{"name": "group1"}, {"name": "group2"}},
+				"email":          "emailvalue",
+				"email_verified": true,
+			},
+		},
+		{
 			name:               "newGroupFromClaims",
 			userIDKey:          "", // not configured
 			userNameKey:        "", // not configured
@@ -364,6 +397,40 @@ func TestHandleCallback(t *testing.T) {
 				"non-string-claim2": 666,
 			},
 		},
+		{
+			name:               "filterGroupClaims",
+			userIDKey:          "", // not configured
+			userNameKey:        "", // not configured
+			groupsRegex:        `^.*\d$`,
+			expectUserID:       "subvalue",
+			expectUserName:     "namevalue",
+			expectGroups:       []string{"group1", "group2"},
+			expectedEmailField: "emailvalue",
+			token: map[string]interface{}{
+				"sub":            "subvalue",
+				"name":           "namevalue",
+				"groups":         []string{"group1", "group2", "groupA", "groupB"},
+				"email":          "emailvalue",
+				"email_verified": true,
+			},
+		},
+		{
+			name:               "filterGroupClaimsMap",
+			userIDKey:          "", // not configured
+			userNameKey:        "", // not configured
+			groupsRegex:        `^.*\d$`,
+			expectUserID:       "subvalue",
+			expectUserName:     "namevalue",
+			expectGroups:       []string{"group1", "group2"},
+			expectedEmailField: "emailvalue",
+			token: map[string]interface{}{
+				"sub":            "subvalue",
+				"name":           "namevalue",
+				"groups":         []map[string]string{{"name": "group1"}, {"name": "group2"}, {"name": "groupA"}, {"name": "groupB"}},
+				"email":          "emailvalue",
+				"email_verified": true,
+			},
+		},
 	}
 
 	for _, tc := range tests {
@@ -400,6 +467,7 @@ func TestHandleCallback(t *testing.T) {
 			config.ClaimMapping.EmailKey = tc.emailKey
 			config.ClaimMapping.GroupsKey = tc.groupsKey
 			config.ClaimMutations.NewGroupFromClaims = tc.newGroupFromClaims
+			config.ClaimMutations.FilterGroupClaims.GroupsFilter = tc.groupsRegex
 
 			conn, err := newConnector(config)
 			if err != nil {
